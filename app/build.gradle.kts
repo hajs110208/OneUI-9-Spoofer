@@ -9,7 +9,7 @@ android {
     compileSdkVersion(36) 
 
     defaultConfig {
-        applicationId = "com.HeheJuice.OneUISpoof"
+        applicationId = "com.HeheJuice.OneUINineSpoof"
         minSdk = 35
         targetSdk = 36
         versionCode = 1
