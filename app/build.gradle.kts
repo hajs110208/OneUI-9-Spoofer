@@ -4,7 +4,7 @@ plugins {
 }
 
 android {
-    namespace = "com.HeheJuice.OneUISpoof"
+    namespace = "com.HeheJuice.OneUINineSpoof"
     compileSdk = 36
     compileSdkVersion(36) 
 

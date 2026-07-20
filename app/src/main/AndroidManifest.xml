@@ -3,7 +3,7 @@
 
     <application
         android:allowBackup="false"
-        package="com.HeheJuice.OneUISpoof"
+        package="com.HeheJuice.OneUINineSpoof"
         android:icon="@drawable/ic_hehe"
         android:label="OneUI 9 Prop Spoofer">
         

@@ -1,4 +1,4 @@
-package com.HeheJuice.OneUISpoof
+package com.HeheJuice.OneUINineSpoof
 
 import de.robv.android.xposed.IXposedHookLoadPackage
 import de.robv.android.xposed.XposedHelpers
