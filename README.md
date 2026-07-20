@@ -22,7 +22,7 @@
      - HomeUP Refused to Launch 
      - Other
 - Why this patch won't have these problems?
-     - It only applies 8.5 Spoof to Selected Apps 
+     - It only applies UI 9 Spoof to Selected Apps 
      
 ### 📝 Other Features 
 - Unlock OneUI 9 App Layout 
