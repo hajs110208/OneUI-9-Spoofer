@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <application
+        android:allowBackup="false"
+        package="com.HeheJuice.OneUISpoof"
+        android:icon="@drawable/ic_hehe"
+        android:label="OneUI 9 Prop Spoofer">
+        
+        <meta-data
+            android:name="xposedmodule"
+            android:value="true" />
+            
+        <meta-data
+            android:name="xposeddescription"
+            android:value="Spoofing as OneUI 9 For Selected Apps." />
+            
+        <meta-data
+            android:name="xposedminversion"
+            android:value="82" />
+        
+        <meta-data 
+    android:name="xposedscope" 
+    android:value="com.sec.android.gallery3d;com.sec.android.app.myfiles;com.samsung.android.app.interpreter;com.samsung.android.app.routines;com.samsung.android.forest;com.sec.android.app.popupcalculator;com.sec.android.app.clockpackage;com.samsung.android.app.sketchbook;com.samsung.android.lool;com.samsung.android.smartsuggestions;com.sec.android.mimage.photoretouching;com.samsung.android.app.reminder;com.samsung.android.app.notes;com.sec.android.daemonapp;com.samsung.android.incallui" />
+
+    </application>
+</manifest>
