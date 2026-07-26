@@ -8,6 +8,7 @@
 [![Chat](https://img.shields.io/badge/Telegram-Chat-26A5E4?style=flat-square&logo=Telegram)](https://t.me/sechehe)
 ![LSPosed](https://img.shields.io/badge/Powered_by-LSPosed-F48FB1?style=flat-square&logo=android)
 [![MinSDK](https://img.shields.io/badge/Min_SDK-35-brightgreen?style=flat-square&logo=android)](https://developer.android.com/about/versions)
+[![GitHub Downloads](https://img.shields.io/github/downloads/HeheJuice/OneUI-9-Spoofer/total?color=blue&label=Downloads+from+GitHub+Source&style=flat-square)](https://github.com/HeheJuice/OneUI-9-Spoofer/releases)
 </div>
 
 ### 🗺 Project Overview 
