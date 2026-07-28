@@ -279,7 +279,7 @@ class HeheJuiceSpoof : IXposedHookLoadPackage {
 
             XposedHelpers.findAndHookMethod(FileInputStream::class.java, "read", ByteArray::class.java, object : XC_MethodHook() {
                 override fun beforeHookedMethod(param: MethodHookParam) {
-                    if (XposedHelpers.getAdditionalInstanceField(param.thisOneself ?? param.thisObject, "isOneUISpoofStream") == true) {
+                    if (XposedHelpers.getAdditionalInstanceField(param.thisObject, "isOneUISpoofStream") == true) {
                         val bis = XposedHelpers.getAdditionalInstanceField(param.thisObject, "spoofStream") as ByteArrayInputStream
                         val b = param.args[0] as ByteArray
                         param.result = bis.read(b)
