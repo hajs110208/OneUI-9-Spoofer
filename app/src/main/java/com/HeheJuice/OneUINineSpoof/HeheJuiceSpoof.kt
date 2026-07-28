@@ -1,5 +1,6 @@
 package com.HeheJuice.OneUINineSpoof
 
+import android.content.res.XModuleResources
 import de.robv.android.xposed.IXposedHookLoadPackage
 import de.robv.android.xposed.XposedHelpers
 import de.robv.android.xposed.callbacks.XC_LoadPackage.LoadPackageParam
@@ -7,44 +8,29 @@ import de.robv.android.xposed.XC_MethodHook
 import java.io.ByteArrayInputStream
 import java.io.File
 import java.io.FileInputStream
+import java.io.InputStreamReader
+import java.util.Properties
 
 class HeheJuiceSpoof : IXposedHookLoadPackage {
 
-    // =========================================================
-    // Spoofed system properties (values from prop.txt)
-    // =========================================================
-    private val spoofedProps = mapOf(
-        // Device identification
-        "ro.product.brand" to "samsung",
-        "ro.product.device" to "projectv2ul",
-        "ro.product.manufacturer" to "samsung",
-        "ro.product.model" to "SM-L715U",
-        "ro.product.name" to "projectv2ulue",
-        // Build fingerprint & metadata
-        "ro.build.fingerprint" to "samsung/projectv2ulue/projectv2ul:17/CP2A.260330.023/L715USQU1AZFL:user/release-keys",
-        "ro.build.id" to "CP2A.260330.023",
-        "ro.build.display.id" to "CP2A.260330.023.L715USQU1AZFL",
-        "ro.build.version.incremental" to "L715USQU1AZFL",
-        "ro.build.version.release" to "17",
-        "ro.build.version.sdk" to "37",
-        "ro.build.version.security_patch" to "2026-05-05",
-        "ro.build.date.utc" to "1782469254",
-        "ro.build.tags" to "release-keys",
-        "ro.build.type" to "user",
-        "ro.build.description" to "projectv2ulue-user 17 CP2A.260330.023 L715USQU1AZFL release-keys",
-        // OneUI & SEP versions (already present, kept for completeness)
-        "ro.build.version.oneui" to "90000",
-        "ro.build.version.sep" to "180000",
-        // Additional optional props from prop.txt (can be extended)
-        "ro.product.locale" to "en-GB",
-        "ro.wifi.channels" to "",
-        "ro.carrier" to "unknown",
-        "ro.cw_build.wear_sdk.version" to "7"
-    )
+    // Dynamic map loaded from assets/prop.txt
+    private val spoofedProps = mutableMapOf<String, String>()
 
-    // =========================================================
-    // Custom OneUI feature XML (unchanged)
-    // =========================================================
+    // Fallback static fields populated dynamically from the loaded props
+    private var spoofModel = "SM-L715U"
+    private var spoofBrand = "samsung"
+    private var spoofDevice = "projectv2ul"
+    private var spoofProduct = "projectv2ulue"
+    private var spoofFingerprint = "samsung/projectv2ulue/projectv2ul:17/CP2A.260330.023/L715USQU1AZFL:user/release-keys"
+    private var spoofDisplay = "CP2A.260330.023.L715USQU1AZFL"
+    private var spoofTags = "release-keys"
+    private var spoofType = "user"
+    private var spoofDescription = "projectv2ulue-user 17 CP2A.260330.023 L715USQU1AZFL release-keys"
+    private var spoofRelease = "17"
+    private var spoofSecurityPatch = "2026-05-05"
+    private var spoofSdkInt = 37
+    private var spoofSemInt = 180000
+
     private val customXmlContent = """
         <?xml version="1.0" encoding="utf-8"?>
         <permissions>
@@ -76,11 +62,48 @@ class HeheJuiceSpoof : IXposedHookLoadPackage {
 
     private val targetPath = "/system/etc/permissions/com.samsung.android.oneui.version.xml"
     private val xmlBytes = customXmlContent.toByteArray(Charsets.UTF_8)
-
     private var buildFieldsSpoofed = false
+
+    private fun loadPropsFromAssets(lpparam: LoadPackageParam) {
+        if (spoofedProps.isNotEmpty()) return
+        try {
+            val modRes = XModuleResources.createInstance(lpparam.classLoader.getResource("")?.path, null)
+            val inputStream = modRes.assets.open("prop.txt")
+            val properties = Properties()
+            properties.load(InputStreamReader(inputStream, Charsets.UTF_8))
+            inputStream.close()
+
+            for (key in properties.stringPropertyNames()) {
+                properties.getProperty(key)?.let { value ->
+                    spoofedProps[key] = value
+                }
+            }
+
+            // Map loaded properties to local variables for Build fields fallback
+            spoofModel = spoofedProps["ro.product.model"] ?: spoofModel
+            spoofBrand = spoofedProps["ro.product.brand"] ?: spoofBrand
+            spoofDevice = spoofedProps["ro.product.device"] ?: spoofDevice
+            spoofProduct = spoofedProps["ro.product.name"] ?: spoofProduct
+            spoofFingerprint = spoofedProps["ro.build.fingerprint"] ?: spoofFingerprint
+            spoofDisplay = spoofedProps["ro.build.display.id"] ?: spoofDisplay
+            spoofTags = spoofedProps["ro.build.tags"] ?: spoofTags
+            spoofType = spoofedProps["ro.build.type"] ?: spoofType
+            spoofDescription = spoofedProps["ro.build.description"] ?: spoofDescription
+            spoofRelease = spoofedProps["ro.build.version.release"] ?: spoofRelease
+            spoofSecurityPatch = spoofedProps["ro.build.version.security_patch"] ?: spoofSecurityPatch
+            spoofSdkInt = spoofedProps["ro.build.version.sdk"]?.toIntOrNull() ?: spoofSdkInt
+            spoofSemInt = spoofedProps["ro.build.version.sep"]?.toIntOrNull() ?: spoofSemInt
+
+        } catch (t: Throwable) {
+            // Fallback or handle error if asset cannot be read
+        }
+    }
 
     override fun handleLoadPackage(lpparam: LoadPackageParam) {
         if (lpparam.packageName == null) return
+
+        // Load properties from assets/prop.txt first
+        loadPropsFromAssets(lpparam)
 
         // =========================================================
         // LAYER 1: SYSTEM PROPERTIES & INT OVERRIDES (All Apps)
@@ -88,7 +111,6 @@ class HeheJuiceSpoof : IXposedHookLoadPackage {
         try {
             val systemPropertiesClass = XposedHelpers.findClass("android.os.SystemProperties", lpparam.classLoader)
 
-            // Hook get(String)
             XposedHelpers.findAndHookMethod(systemPropertiesClass, "get", String::class.java,
                 object : XC_MethodHook() {
                     override fun afterHookedMethod(param: MethodHookParam) {
@@ -97,7 +119,6 @@ class HeheJuiceSpoof : IXposedHookLoadPackage {
                     }
                 })
 
-            // Hook get(String, String)
             XposedHelpers.findAndHookMethod(systemPropertiesClass, "get", String::class.java, String::class.java,
                 object : XC_MethodHook() {
                     override fun afterHookedMethod(param: MethodHookParam) {
@@ -106,7 +127,6 @@ class HeheJuiceSpoof : IXposedHookLoadPackage {
                     }
                 })
 
-            // Hook getInt(String, int)
             XposedHelpers.findAndHookMethod(systemPropertiesClass, "getInt", String::class.java, Int::class.javaPrimitiveType,
                 object : XC_MethodHook() {
                     override fun afterHookedMethod(param: MethodHookParam) {
@@ -114,14 +134,11 @@ class HeheJuiceSpoof : IXposedHookLoadPackage {
                         spoofedProps[key]?.let { str ->
                             try {
                                 param.result = str.toInt()
-                            } catch (_: NumberFormatException) {
-                                // keep default
-                            }
+                            } catch (_: NumberFormatException) {}
                         }
                     }
                 })
 
-            // Hook getLong(String, long) if needed
             try {
                 XposedHelpers.findAndHookMethod(systemPropertiesClass, "getLong", String::class.java, Long::class.javaPrimitiveType,
                     object : XC_MethodHook() {
@@ -130,23 +147,18 @@ class HeheJuiceSpoof : IXposedHookLoadPackage {
                             spoofedProps[key]?.let { str ->
                                 try {
                                     param.result = str.toLong()
-                                } catch (_: NumberFormatException) {
-                                    // keep default
-                                }
+                                } catch (_: NumberFormatException) {}
                             }
                         }
                     })
             } catch (_: Throwable) {}
 
-        } catch (t: Throwable) {
-            // Ignore if class not found
-        }
+        } catch (t: Throwable) {}
 
         // 1B. Spoof Samsung's proprietary SemSystemProperties wrapper
         try {
             val semSystemPropertiesClass = XposedHelpers.findClass("android.os.SemSystemProperties", lpparam.classLoader)
 
-            // Hook get(String)
             XposedHelpers.findAndHookMethod(semSystemPropertiesClass, "get", String::class.java,
                 object : XC_MethodHook() {
                     override fun afterHookedMethod(param: MethodHookParam) {
@@ -155,7 +167,6 @@ class HeheJuiceSpoof : IXposedHookLoadPackage {
                     }
                 })
 
-            // Hook get(String, String)
             XposedHelpers.findAndHookMethod(semSystemPropertiesClass, "get", String::class.java, String::class.java,
                 object : XC_MethodHook() {
                     override fun afterHookedMethod(param: MethodHookParam) {
@@ -164,7 +175,6 @@ class HeheJuiceSpoof : IXposedHookLoadPackage {
                     }
                 })
 
-            // Hook getInt(String, int)
             XposedHelpers.findAndHookMethod(semSystemPropertiesClass, "getInt", String::class.java, Int::class.javaPrimitiveType,
                 object : XC_MethodHook() {
                     override fun afterHookedMethod(param: MethodHookParam) {
@@ -172,33 +182,11 @@ class HeheJuiceSpoof : IXposedHookLoadPackage {
                         spoofedProps[key]?.let { str ->
                             try {
                                 param.result = str.toInt()
-                            } catch (_: NumberFormatException) {
-                                // keep default
-                            }
+                            } catch (_: NumberFormatException) {}
                         }
                     }
                 })
-
-            // Hook getLong if exists
-            try {
-                XposedHelpers.findAndHookMethod(semSystemPropertiesClass, "getLong", String::class.java, Long::class.javaPrimitiveType,
-                    object : XC_MethodHook() {
-                        override fun afterHookedMethod(param: MethodHookParam) {
-                            val key = param.args[0] as? String ?: return
-                            spoofedProps[key]?.let { str ->
-                                try {
-                                    param.result = str.toLong()
-                                } catch (_: NumberFormatException) {
-                                    // keep default
-                                }
-                            }
-                        }
-                    })
-            } catch (_: Throwable) {}
-
-        } catch (t: Throwable) {
-            // Ignore if class not found
-        }
+        } catch (t: Throwable) {}
 
         // 1C. Spoof PackageManager.hasSystemFeature for OneUI versions
         try {
@@ -221,38 +209,31 @@ class HeheJuiceSpoof : IXposedHookLoadPackage {
         // =========================================================
         if (!buildFieldsSpoofed) {
             try {
-                // android.os.Build
                 val buildClass = XposedHelpers.findClass("android.os.Build", lpparam.classLoader)
-                XposedHelpers.setStaticObjectField(buildClass, "MODEL", "SM-L715U")
-                XposedHelpers.setStaticObjectField(buildClass, "BRAND", "samsung")
-                XposedHelpers.setStaticObjectField(buildClass, "DEVICE", "projectv2ul")
-                XposedHelpers.setStaticObjectField(buildClass, "PRODUCT", "projectv2ulue")
-                XposedHelpers.setStaticObjectField(buildClass, "FINGERPRINT", "samsung/projectv2ulue/projectv2ul:17/CP2A.260330.023/L715USQU1AZFL:user/release-keys")
-                XposedHelpers.setStaticObjectField(buildClass, "DISPLAY", "CP2A.260330.023.L715USQU1AZFL")
-                XposedHelpers.setStaticObjectField(buildClass, "TAGS", "release-keys")
-                XposedHelpers.setStaticObjectField(buildClass, "TYPE", "user")
-                XposedHelpers.setStaticObjectField(buildClass, "DESCRIPTION", "projectv2ulue-user 17 CP2A.260330.023 L715USQU1AZFL release-keys")
+                XposedHelpers.setStaticObjectField(buildClass, "MODEL", spoofModel)
+                XposedHelpers.setStaticObjectField(buildClass, "BRAND", spoofBrand)
+                XposedHelpers.setStaticObjectField(buildClass, "DEVICE", spoofDevice)
+                XposedHelpers.setStaticObjectField(buildClass, "PRODUCT", spoofProduct)
+                XposedHelpers.setStaticObjectField(buildClass, "FINGERPRINT", spoofFingerprint)
+                XposedHelpers.setStaticObjectField(buildClass, "DISPLAY", spoofDisplay)
+                XposedHelpers.setStaticObjectField(buildClass, "TAGS", spoofTags)
+                XposedHelpers.setStaticObjectField(buildClass, "TYPE", spoofType)
+                XposedHelpers.setStaticObjectField(buildClass, "DESCRIPTION", spoofDescription)
 
-                // android.os.Build.VERSION
                 val versionClass = XposedHelpers.findClass("android.os.Build\$VERSION", lpparam.classLoader)
-                XposedHelpers.setStaticObjectField(versionClass, "RELEASE", "17")
-                XposedHelpers.setStaticObjectField(versionClass, "SECURITY_PATCH", "2026-05-05")
-                XposedHelpers.setStaticIntField(versionClass, "SDK_INT", 37)
-                // Also set SEM fields (already done in original code, but we keep)
-                XposedHelpers.setStaticIntField(versionClass, "SEM_PLATFORM_INT", 180000)
-                XposedHelpers.setStaticIntField(versionClass, "SEM_INT", 180000)
+                XposedHelpers.setStaticObjectField(versionClass, "RELEASE", spoofRelease)
+                XposedHelpers.setStaticObjectField(versionClass, "SECURITY_PATCH", spoofSecurityPatch)
+                XposedHelpers.setStaticIntField(versionClass, "SDK_INT", spoofSdkInt)
+                XposedHelpers.setStaticIntField(versionClass, "SEM_PLATFORM_INT", spoofSemInt)
+                XposedHelpers.setStaticIntField(versionClass, "SEM_INT", spoofSemInt)
 
                 buildFieldsSpoofed = true
-            } catch (t: Throwable) {
-                // Ignore
-            }
+            } catch (t: Throwable) {}
         }
 
         // =========================================================
-        // LAYER 3: VIRTUAL FILE SIMULATION FOR OneUI XML (unchanged)
+        // LAYER 3: VIRTUAL FILE SIMULATION FOR OneUI XML
         // =========================================================
-
-        // 3A. Mock existence
         try {
             XposedHelpers.findAndHookMethod(File::class.java, "exists", object : XC_MethodHook() {
                 override fun beforeHookedMethod(param: MethodHookParam) {
@@ -262,10 +243,7 @@ class HeheJuiceSpoof : IXposedHookLoadPackage {
                     }
                 }
             })
-        } catch (t: Throwable) {}
 
-        // 3B. Mock file length
-        try {
             XposedHelpers.findAndHookMethod(File::class.java, "length", object : XC_MethodHook() {
                 override fun beforeHookedMethod(param: MethodHookParam) {
                     val file = param.thisObject as File
@@ -274,10 +252,7 @@ class HeheJuiceSpoof : IXposedHookLoadPackage {
                     }
                 }
             })
-        } catch (t: Throwable) {}
 
-        // 3C. Intercept FileInputStream constructors to serve custom XML
-        try {
             val fileStreamHook = object : XC_MethodHook() {
                 override fun beforeHookedMethod(param: MethodHookParam) {
                     val arg = param.args[0]
@@ -286,20 +261,13 @@ class HeheJuiceSpoof : IXposedHookLoadPackage {
                     if (path == targetPath) {
                         XposedHelpers.setAdditionalInstanceField(param.thisObject, "isOneUISpoofStream", true)
                         XposedHelpers.setAdditionalInstanceField(param.thisObject, "spoofStream", ByteArrayInputStream(xmlBytes))
-                        if (arg is File) {
-                            param.args[0] = File("/dev/null")
-                        } else {
-                            param.args[0] = "/dev/null"
-                        }
+                        param.args[0] = if (arg is File) File("/dev/null") else "/dev/null"
                     }
                 }
             }
             XposedHelpers.findAndHookConstructor(FileInputStream::class.java, File::class.java, fileStreamHook)
             XposedHelpers.findAndHookConstructor(FileInputStream::class.java, String::class.java, fileStreamHook)
-        } catch (t: Throwable) {}
 
-        // 3D. Redirect read() methods to the spoofed stream
-        try {
             XposedHelpers.findAndHookMethod(FileInputStream::class.java, "read", object : XC_MethodHook() {
                 override fun beforeHookedMethod(param: MethodHookParam) {
                     if (XposedHelpers.getAdditionalInstanceField(param.thisObject, "isOneUISpoofStream") == true) {
@@ -311,22 +279,10 @@ class HeheJuiceSpoof : IXposedHookLoadPackage {
 
             XposedHelpers.findAndHookMethod(FileInputStream::class.java, "read", ByteArray::class.java, object : XC_MethodHook() {
                 override fun beforeHookedMethod(param: MethodHookParam) {
-                    if (XposedHelpers.getAdditionalInstanceField(param.thisObject, "isOneUISpoofStream") == true) {
+                    if (XposedHelpers.getAdditionalInstanceField(param.thisOneself ?? param.thisObject, "isOneUISpoofStream") == true) {
                         val bis = XposedHelpers.getAdditionalInstanceField(param.thisObject, "spoofStream") as ByteArrayInputStream
                         val b = param.args[0] as ByteArray
                         param.result = bis.read(b)
-                    }
-                }
-            })
-
-            XposedHelpers.findAndHookMethod(FileInputStream::class.java, "read", ByteArray::class.java, Int::class.javaPrimitiveType, Int::class.javaPrimitiveType, object : XC_MethodHook() {
-                override fun beforeHookedMethod(param: MethodHookParam) {
-                    if (XposedHelpers.getAdditionalInstanceField(param.thisObject, "isOneUISpoofStream") == true) {
-                        val bis = XposedHelpers.getAdditionalInstanceField(param.thisObject, "spoofStream") as ByteArrayInputStream
-                        val b = param.args[0] as ByteArray
-                        val off = param.args[1] as Int
-                        val len = param.args[2] as Int
-                        param.result = bis.read(b, off, len)
                     }
                 }
             })
