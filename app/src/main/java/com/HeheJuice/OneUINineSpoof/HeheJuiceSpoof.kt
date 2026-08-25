@@ -56,6 +56,7 @@ class HeheJuiceSpoof : IXposedHookLoadPackage {
                     val key = param.args[0] as? String ?: return
                     if (key == "ro.build.version.oneui") param.result = "90000" 
                     if (key == "ro.build.version.sep") param.result = "180000"
+                    if (key == "ro.product.device") param.result = "h8q"
                 }
             }
             XposedHelpers.findAndHookMethod(systemPropertiesClass, "get", String::class.java, propHookString)
@@ -101,6 +102,7 @@ class HeheJuiceSpoof : IXposedHookLoadPackage {
                     val key = param.args[0] as? String ?: return
                     if (key == "ro.build.version.oneui") param.result = "90000"
                     if (key == "ro.build.version.sep") param.result = "180000"
+                    if (key == "ro.product.device") param.result = "h8q"
                 }
             }
             XposedHelpers.findAndHookMethod(semSystemPropertiesClass, "get", String::class.java, semPropHookString)
