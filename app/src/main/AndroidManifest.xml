@@ -5,7 +5,7 @@
         android:allowBackup="false"
         package="com.HeheJuice.OneUINineSpoof"
         android:icon="@drawable/ic_hehe"
-        android:label="OneUI 9 Prop Spoofer">
+        android:label="OneUI 9 spoofer + h8q spoof">
         
         <meta-data
             android:name="xposedmodule"
@@ -13,7 +13,7 @@
             
         <meta-data
             android:name="xposeddescription"
-            android:value="Spoofing as OneUI 9 For Selected Apps." />
+            android:value="UI9 spoof and h8q spoof for systemui taskbar." />
             
         <meta-data
             android:name="xposedminversion"
@@ -21,7 +21,7 @@
         
         <meta-data 
     android:name="xposedscope" 
-    android:value="com.sec.android.gallery3d;com.sec.android.app.myfiles;com.samsung.android.app.interpreter;com.samsung.android.app.routines;com.samsung.android.forest;com.sec.android.app.popupcalculator;com.sec.android.app.clockpackage;com.samsung.android.app.sketchbook;com.samsung.android.lool;com.samsung.android.smartsuggestions;com.sec.android.mimage.photoretouching;com.samsung.android.app.reminder;com.samsung.android.app.notes;com.sec.android.daemonapp;com.samsung.android.incallui" />
+    android:value="com.sec.android.gallery3d;com.sec.android.app.myfiles;com.samsung.android.app.interpreter;com.samsung.android.app.routines;com.samsung.android.forest;com.sec.android.app.popupcalculator;com.sec.android.app.clockpackage;com.samsung.android.app.sketchbook;com.samsung.android.lool;com.samsung.android.smartsuggestions;com.sec.android.mimage.photoretouching;com.samsung.android.app.reminder;com.samsung.android.app.notes;com.sec.android.daemonapp;com.samsung.android.incallui;com.android.systemui" />
 
     </application>
 </manifest>
