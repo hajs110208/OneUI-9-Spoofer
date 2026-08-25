@@ -28,7 +28,7 @@ android {
     // Both environments grouped together cleanly inside ONE block
     buildTypes {
         debug {
-            signingConfig = signingConfigs.getByName("stableDebug")
+            signingConfig null
         }
         release {
             isMinifyEnabled = false
