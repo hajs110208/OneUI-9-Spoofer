@@ -20,8 +20,7 @@ class HeheJuiceSpoof : IXposedHookLoadPackage {
             val propHookString = object : XC_MethodHook() {
                 override fun afterHookedMethod(param: MethodHookParam) {
                     val key = param.args[0] as? String ?: return
-                    // keep SEP/device/characteristics spoofing, but do NOT spoof OneUI version
-                    if (key == "ro.build.version.sep") param.result = "180000"
+                    // keep device/characteristics spoofing, but do NOT spoof SEP
                     if (key == "ro.product.device") param.result = "h8q"
                     if (key == "ro.build.characteristics") param.result = "tablet"
                 }
@@ -32,8 +31,7 @@ class HeheJuiceSpoof : IXposedHookLoadPackage {
             val propHookInt = object : XC_MethodHook() {
                 override fun afterHookedMethod(param: MethodHookParam) {
                     val key = param.args[0] as? String ?: return
-                    // keep SEP int spoof, do NOT spoof OneUI int
-                    if (key == "ro.build.version.sep") param.result = 180000
+                    // no SEP int spoofing
                 }
             }
             XposedHelpers.findAndHookMethod(systemPropertiesClass, "getInt", String::class.java, Int::class.javaPrimitiveType, propHookInt)
@@ -42,8 +40,8 @@ class HeheJuiceSpoof : IXposedHookLoadPackage {
         // 1C. Spoof Samsung's Hidden Static Build Variables (unchanged)
         try {
             val buildVersionClass = XposedHelpers.findClass("android.os.Build\$VERSION", lpparam.classLoader)
-            XposedHelpers.setStaticIntField(buildVersionClass, "SEM_PLATFORM_INT", 180000)
-            XposedHelpers.setStaticIntField(buildVersionClass, "SEM_INT", 180000)
+            // SEP-related static ints removed to avoid SEP spoofing
+            // (Previously: SEM_PLATFORM_INT / SEM_INT were set here)
         } catch (t: Throwable) {}
 
         // 1D. SemSystemProperties wrapper: keep non-OneUI overrides only
@@ -53,7 +51,6 @@ class HeheJuiceSpoof : IXposedHookLoadPackage {
             val semPropHookString = object : XC_MethodHook() {
                 override fun afterHookedMethod(param: MethodHookParam) {
                     val key = param.args[0] as? String ?: return
-                    if (key == "ro.build.version.sep") param.result = "180000"
                     if (key == "ro.product.device") param.result = "h8q"
                     if (key == "ro.build.characteristics") param.result = "tablet"
                 }
@@ -64,7 +61,7 @@ class HeheJuiceSpoof : IXposedHookLoadPackage {
             val semPropHookInt = object : XC_MethodHook() {
                 override fun afterHookedMethod(param: MethodHookParam) {
                     val key = param.args[0] as? String ?: return
-                    if (key == "ro.build.version.sep") param.result = 180000
+                    // no SEP int spoofing
                 }
             }
             XposedHelpers.findAndHookMethod(semSystemPropertiesClass, "getInt", String::class.java, Int::class.javaPrimitiveType, semPropHookInt)
