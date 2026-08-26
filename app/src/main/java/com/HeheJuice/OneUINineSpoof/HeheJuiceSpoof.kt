@@ -77,5 +77,30 @@ class HeheJuiceSpoof : IXposedHookLoadPackage {
                 XposedHelpers.findAndHookMethod(semSystemPropertiesClass, "getBoolean", String::class.java, Boolean::class.javaPrimitiveType, semPropHookBoolean)
             } catch (t: Throwable) {}
         } catch (t: Throwable) {}
+
+        // Additionally hook the SemFloatingFeature class used by SystemUI (com.samsung.android.feature.SemFloatingFeature)
+        try {
+            val semFloatingFeatureClass = XposedHelpers.findClass("com.samsung.android.feature.SemFloatingFeature", lpparam.classLoader)
+
+            val semFloatingHookNoDefault = object : XC_MethodHook() {
+                override fun afterHookedMethod(param: MethodHookParam) {
+                    val key = param.args[0] as? String ?: return
+                    if (key == "SEC_FLOATING_FEATURE_LAUNCHER_SUPPORT_TASKBAR") param.result = true
+                }
+            }
+            // getBoolean(String)
+            XposedHelpers.findAndHookMethod(semFloatingFeatureClass, "getBoolean", String::class.java, semFloatingHookNoDefault)
+
+            val semFloatingHookWithDefault = object : XC_MethodHook() {
+                override fun afterHookedMethod(param: MethodHookParam) {
+                    val key = param.args[0] as? String ?: return
+                    if (key == "SEC_FLOATING_FEATURE_LAUNCHER_SUPPORT_TASKBAR") param.result = true
+                }
+            }
+            // getBoolean(String, boolean)
+            try {
+                XposedHelpers.findAndHookMethod(semFloatingFeatureClass, "getBoolean", String::class.java, Boolean::class.javaPrimitiveType, semFloatingHookWithDefault)
+            } catch (t: Throwable) {}
+        } catch (t: Throwable) {}
     }
 }
