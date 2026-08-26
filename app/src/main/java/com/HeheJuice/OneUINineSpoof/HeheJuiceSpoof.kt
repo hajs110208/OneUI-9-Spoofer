@@ -29,6 +29,17 @@ class HeheJuiceSpoof : IXposedHookLoadPackage {
                 }
             }
             XposedHelpers.findAndHookMethod(systemPropertiesClass, "getInt", String::class.java, Int::class.javaPrimitiveType, propHookInt)
+
+            // Hook boolean properties like SEC_FLOATING_FEATURE_LAUNCHER_SUPPORT_TASKBAR and force them to true
+            val propHookBoolean = object : XC_MethodHook() {
+                override fun afterHookedMethod(param: MethodHookParam) {
+                    val key = param.args[0] as? String ?: return
+                    if (key == "SEC_FLOATING_FEATURE_LAUNCHER_SUPPORT_TASKBAR") param.result = true
+                }
+            }
+            try {
+                XposedHelpers.findAndHookMethod(systemPropertiesClass, "getBoolean", String::class.java, Boolean::class.javaPrimitiveType, propHookBoolean)
+            } catch (t: Throwable) {}
         } catch (t: Throwable) {}
 
         try {
@@ -54,6 +65,17 @@ class HeheJuiceSpoof : IXposedHookLoadPackage {
                 }
             }
             XposedHelpers.findAndHookMethod(semSystemPropertiesClass, "getInt", String::class.java, Int::class.javaPrimitiveType, semPropHookInt)
+
+            // Hook boolean properties on SemSystemProperties as well
+            val semPropHookBoolean = object : XC_MethodHook() {
+                override fun afterHookedMethod(param: MethodHookParam) {
+                    val key = param.args[0] as? String ?: return
+                    if (key == "SEC_FLOATING_FEATURE_LAUNCHER_SUPPORT_TASKBAR") param.result = true
+                }
+            }
+            try {
+                XposedHelpers.findAndHookMethod(semSystemPropertiesClass, "getBoolean", String::class.java, Boolean::class.javaPrimitiveType, semPropHookBoolean)
+            } catch (t: Throwable) {}
         } catch (t: Throwable) {}
     }
 }
