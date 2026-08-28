@@ -5,7 +5,7 @@ import de.robv.android.xposed.XposedHelpers
 import de.robv.android.xposed.callbacks.XC_LoadPackage.LoadPackageParam
 import de.robv.android.xposed.XC_MethodHook
 
-class HeheJuiceSpoof : IXposedHookLoadPackage {
+class Spoof : IXposedHookLoadPackage {
 
     override fun handleLoadPackage(lpparam: LoadPackageParam) {
         if (lpparam.packageName == null) return
