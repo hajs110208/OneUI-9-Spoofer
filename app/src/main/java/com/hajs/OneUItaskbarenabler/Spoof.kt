@@ -1,4 +1,4 @@
-package com.HeheJuice.OneUINineSpoof
+package com.hajs.OneUItaskbarenabler
 
 import de.robv.android.xposed.IXposedHookLoadPackage
 import de.robv.android.xposed.XposedHelpers
