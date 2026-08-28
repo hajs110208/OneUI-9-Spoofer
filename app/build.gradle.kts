@@ -4,12 +4,12 @@ plugins {
 }
 
 android {
-    namespace = "com.HeheJuice.OneUINineSpoof"
+    namespace = "com.hajs.OneUItaskbarenabler"
     compileSdk = 36
     compileSdkVersion(36) 
 
     defaultConfig {
-        applicationId = "com.HeheJuice.OneUINineSpoof"
+        applicationId = "com.hajs.OneUItaskbarenabler"
         minSdk = 35
         targetSdk = 36
         versionCode = 1
