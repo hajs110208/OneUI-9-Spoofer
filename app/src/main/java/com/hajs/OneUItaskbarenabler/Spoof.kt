@@ -17,7 +17,7 @@ class HeheJuiceSpoof : IXposedHookLoadPackage {
                 override fun afterHookedMethod(param: MethodHookParam) {
                     val key = param.args[0] as? String ?: return
                     if (key == "ro.product.device") param.result = "q7q"
-                    if (key == "ro.build.characteristics") param.result = "phone"
+                    if (key == "ro.build.characteristics") param.result = "tablet"
                 }
             }
             XposedHelpers.findAndHookMethod(systemPropertiesClass, "get", String::class.java, propHookString)
@@ -53,7 +53,7 @@ class HeheJuiceSpoof : IXposedHookLoadPackage {
                 override fun afterHookedMethod(param: MethodHookParam) {
                     val key = param.args[0] as? String ?: return
                     if (key == "ro.product.device") param.result = "q7q"
-                    if (key == "ro.build.characteristics") param.result = "phone"
+                    if (key == "ro.build.characteristics") param.result = "tablet"
                 }
             }
             XposedHelpers.findAndHookMethod(semSystemPropertiesClass, "get", String::class.java, semPropHookString)
