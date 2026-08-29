@@ -3,7 +3,7 @@
 
     <application
         android:allowBackup="false"
-        package="com.hajs.OneUItaskbarenabler"
+        package="com.hajs.OneUIFoldUXenabler"
         android:icon="@drawable/ic_hehe"
         android:label="OneUI taskbar enabler">
         
