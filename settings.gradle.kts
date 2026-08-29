@@ -14,5 +14,5 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "PropSpoofer"
+rootProject.name = "FoldSpoofer"
 include(":app")
