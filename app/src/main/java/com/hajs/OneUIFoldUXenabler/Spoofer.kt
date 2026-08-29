@@ -1,11 +1,11 @@
-package com.hajs.OneUItaskbarenabler
+package com.hajs.OneUIFoldUXenabler
 
 import de.robv.android.xposed.IXposedHookLoadPackage
 import de.robv.android.xposed.XposedHelpers
 import de.robv.android.xposed.callbacks.XC_LoadPackage.LoadPackageParam
 import de.robv.android.xposed.XC_MethodHook
 
-class Spoof : IXposedHookLoadPackage {
+class Spoofer : IXposedHookLoadPackage {
 
     override fun handleLoadPackage(lpparam: LoadPackageParam) {
         if (lpparam.packageName == null) return
@@ -17,7 +17,7 @@ class Spoof : IXposedHookLoadPackage {
                 override fun afterHookedMethod(param: MethodHookParam) {
                     val key = param.args[0] as? String ?: return
                     if (key == "ro.product.device") param.result = "q7q"
-                    if (key == "ro.build.characteristics") param.result = "tablet"
+                    if (key == "ro.build.characteristics") param.result = "phone"
                 }
             }
             XposedHelpers.findAndHookMethod(systemPropertiesClass, "get", String::class.java, propHookString)
@@ -53,7 +53,7 @@ class Spoof : IXposedHookLoadPackage {
                 override fun afterHookedMethod(param: MethodHookParam) {
                     val key = param.args[0] as? String ?: return
                     if (key == "ro.product.device") param.result = "q7q"
-                    if (key == "ro.build.characteristics") param.result = "tablet"
+                    if (key == "ro.build.characteristics") param.result = "phone"
                 }
             }
             XposedHelpers.findAndHookMethod(semSystemPropertiesClass, "get", String::class.java, semPropHookString)
