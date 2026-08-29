@@ -4,12 +4,12 @@ plugins {
 }
 
 android {
-    namespace = "com.hajs.OneUItaskbarenabler"
+    namespace = "com.hajs.OneUIFoldUXenabler"
     compileSdk = 36
     compileSdkVersion(36) 
 
     defaultConfig {
-        applicationId = "com.hajs.OneUItaskbarenabler"
+        applicationId = "com.hajs.OneUIFoldUXenabler"
         minSdk = 35
         targetSdk = 36
         versionCode = 1
@@ -32,10 +32,6 @@ android {
         }
         release {
             isMinifyEnabled = false
-            proguardFiles(
-                getDefaultProguardFile("proguard-android-optimize.txt"),
-                "proguard-rules.pro"
-            )
         }
     }
 
